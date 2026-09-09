@@ -23,6 +23,6 @@ export const reasoningOptions = {
     reasoningEffort: "low",
     reasoningSummary: "auto",
     store: false,
-    include: ["reasoning.encrypted_content"],
+    include: ["reasoning.encrypted_content"] as string[],
   },
-} as const;
+};
