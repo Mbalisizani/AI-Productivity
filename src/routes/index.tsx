@@ -135,7 +135,7 @@ function Index() {
 
       <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-10 sm:py-16">
         {/* Header */}
-        <header className="flex items-center justify-between">
+        <header className="sticky top-0 z-20 -mx-4 flex items-center justify-between bg-background/80 px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
               <CheckIcon className="h-5 w-5" />
@@ -250,7 +250,7 @@ function Index() {
             return (
               <li
                 key={t.id}
-                className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-colors hover:bg-accent/40"
+                className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-[0_2px_8px_-2px_color-mix(in_oklab,var(--primary)_18%,transparent)] transition-colors hover:bg-accent/40"
               >
                 <button
                   type="button"
