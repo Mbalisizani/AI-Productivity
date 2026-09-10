@@ -5,6 +5,7 @@ import { RefreshCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { AppShell } from "@/components/AppShell";
+import { Disclaimer } from "@/components/Disclaimer";
 import {
   Conversation,
   ConversationContent,
@@ -20,15 +21,15 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 
-const STORAGE_KEY = "aiwork-chat-v1";
-const TITLE = "AI Chatbot Assistant | Workplace AI";
+const STORAGE_KEY = "mainstreet-chat-v1";
+const TITLE = "Ask Mainstreet | AI assistant for small businesses";
 const DESC =
-  "Chat with an AI assistant about emails, meetings, planning and prioritisation at work.";
+  "Chat with Mainstreet about emails, customers, meetings, planning and everyday small business questions.";
 
 const SUGGESTIONS = [
-  "Help me prioritise five competing deadlines this week",
-  "How do I politely push back on a last-minute request?",
-  "Draft an agenda for a 30-minute project kickoff",
+  "Help me prioritise this week when everything feels urgent",
+  "How do I politely chase a customer for a late payment?",
+  "Draft an agenda for a 20-minute staff catch-up",
 ];
 
 export const Route = createFileRoute("/chat")({
@@ -60,10 +61,8 @@ function ChatPage() {
   }, []);
 
   return (
-    <AppShell
-      title="AI Chatbot"
-      subtitle="Your always-on assistant for day-to-day work questions."
-    >
+    <AppShell title="Ask Mainstreet" subtitle="Your practical assistant for everyday work questions.">
+      <Disclaimer className="mb-5" />
       {ready ? <ChatWindow initialMessages={initial} /> : <div className="h-[60vh]" />}
     </AppShell>
   );

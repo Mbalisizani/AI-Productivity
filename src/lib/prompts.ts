@@ -4,8 +4,10 @@ export type FieldDef = {
   name: string;
   label: string;
   placeholder: string;
-  type: "text" | "textarea" | "select";
+  type: "text" | "textarea" | "select" | "number";
   options?: string[];
+  defaultValue?: string;
+  rows?: number;
   required?: boolean;
 };
 
@@ -17,55 +19,101 @@ export type ToolConfig = {
   fields: FieldDef[];
 };
 
+export const DISCLAIMER =
+  "Mainstreet uses AI to generate drafts. It can be wrong or miss context. Always review before sending, scheduling, or publishing.";
+
 export const TOOLS: Record<ToolId, ToolConfig> = {
   email: {
     id: "email",
-    title: "Smart Email Generator",
-    tagline: "Draft clear, professional emails in seconds.",
+    title: "Email Generator",
+    tagline: "A ready-to-send draft in your chosen tone.",
     cta: "Generate email",
     fields: [
-      { name: "recipient", label: "Recipient", placeholder: "e.g. Head of Operations", type: "text" },
-      { name: "purpose", label: "What is the email about?", placeholder: "e.g. Request a deadline extension for the Q3 report", type: "textarea", required: true },
-      { name: "tone", label: "Tone", placeholder: "", type: "select", options: ["Professional", "Friendly", "Direct", "Apologetic", "Persuasive"] },
-      { name: "length", label: "Length", placeholder: "", type: "select", options: ["Short", "Medium", "Detailed"] },
+      {
+        name: "purpose",
+        label: "Purpose of the email",
+        placeholder: "e.g. Let a supplier know our order will be a week late",
+        type: "textarea",
+        rows: 4,
+        required: true,
+      },
+      { name: "recipient", label: "Recipient", placeholder: "e.g. Thandi at Riverside Supplies", type: "text" },
+      {
+        name: "tone",
+        label: "Tone",
+        placeholder: "",
+        type: "select",
+        options: ["Formal", "Friendly", "Persuasive", "Apologetic", "Brief"],
+      },
+      {
+        name: "keyPoints",
+        label: "Key points (optional)",
+        placeholder: "One point per line",
+        type: "textarea",
+        rows: 4,
+      },
     ],
   },
   notes: {
     id: "notes",
     title: "Meeting Notes Summarizer",
-    tagline: "Turn messy notes or transcripts into decisions and action items.",
+    tagline: "Turn raw notes into decisions and action items.",
     cta: "Summarize notes",
     fields: [
-      { name: "notes", label: "Meeting notes or transcript", placeholder: "Paste your raw notes here…", type: "textarea", required: true },
-      { name: "audience", label: "Summary for", placeholder: "", type: "select", options: ["Whole team", "Leadership", "Client", "Personal follow-up"] },
+      {
+        name: "notes",
+        label: "Paste your meeting notes",
+        placeholder: "Paste everything you jotted down — bullet points are fine.",
+        type: "textarea",
+        rows: 12,
+        required: true,
+      },
     ],
   },
   planner: {
     id: "planner",
-    title: "AI Task Planner",
-    tagline: "Break a goal into a prioritised, time-boxed plan.",
-    cta: "Build plan",
+    title: "Task Planner",
+    tagline: "A prioritised, time-boxed schedule for your tasks.",
+    cta: "Build schedule",
     fields: [
-      { name: "goal", label: "Goal or project", placeholder: "e.g. Launch the new onboarding flow", type: "textarea", required: true },
-      { name: "deadline", label: "Timeframe", placeholder: "e.g. 2 weeks", type: "text" },
-      { name: "capacity", label: "Time available", placeholder: "", type: "select", options: ["A few hours a week", "Half my week", "Full-time focus"] },
+      {
+        name: "tasks",
+        label: "Your tasks (one per line)",
+        placeholder: "Order stock\nCall the accountant\nUpdate the price list",
+        type: "textarea",
+        rows: 8,
+        required: true,
+      },
+      { name: "range", label: "Plan for", placeholder: "", type: "select", options: ["Day", "Week"] },
+      {
+        name: "hours",
+        label: "Working hours per day",
+        placeholder: "6",
+        type: "number",
+        defaultValue: "6",
+      },
     ],
   },
   research: {
     id: "research",
-    title: "AI Research Assistant",
-    tagline: "Get a structured briefing on any work topic.",
-    cta: "Research topic",
+    title: "Research Assistant",
+    tagline: "A practical briefing on any topic or pasted text.",
+    cta: "Research this",
     fields: [
-      { name: "topic", label: "Topic or question", placeholder: "e.g. Best practices for hybrid team performance reviews", type: "textarea", required: true },
-      { name: "depth", label: "Depth", placeholder: "", type: "select", options: ["Quick overview", "Balanced briefing", "Deep dive"] },
-      { name: "format", label: "Output format", placeholder: "", type: "select", options: ["Briefing note", "Bullet summary", "Pros and cons", "FAQ"] },
+      {
+        name: "topic",
+        label: "Topic or pasted text",
+        placeholder: "e.g. How should a small café handle card-machine fees?",
+        type: "textarea",
+        rows: 10,
+        required: true,
+      },
     ],
   },
 };
 
-const SYSTEM_BASE =
-  "You are an AI workplace productivity assistant for busy professionals. Write in clear, plain business English. Use markdown headings, bullets and bold sparingly for scannability. Never invent facts, names, numbers or citations; if something is unknown, say so and mark it as [confirm].";
+const BASE =
+  "You are Mainstreet, a friendly, practical AI workplace assistant for small business owners and small teams. Write in plain language. Never invent facts, names, dates or numbers the user did not give you.";
 
 export function buildPrompt(tool: ToolId, data: Record<string, string>) {
   const f = (k: string, fallback = "not specified") => data[k]?.trim() || fallback;
@@ -73,44 +121,35 @@ export function buildPrompt(tool: ToolId, data: Record<string, string>) {
   switch (tool) {
     case "email":
       return {
-        system: `${SYSTEM_BASE} You draft workplace emails. Always output a subject line, then the body, then a sign-off placeholder.`,
+        system: `${BASE} Write a complete, ready-to-send email in the requested tone, with a Subject line first. Only use facts the user gives — never invent names, dates, or numbers. Use [brackets] for missing info.`,
         prompt: [
-          `Draft an email.`,
+          `Purpose: ${f("purpose")}`,
           `Recipient: ${f("recipient")}`,
-          `Tone: ${f("tone", "Professional")}`,
-          `Length: ${f("length", "Medium")}`,
-          `Purpose and key points: ${f("purpose")}`,
-          `Leave placeholders in square brackets for any detail I have not given you.`,
+          `Tone: ${f("tone", "Friendly")}`,
+          `Key points: ${f("keyPoints", "none provided")}`,
         ].join("\n"),
       };
     case "notes":
       return {
-        system: `${SYSTEM_BASE} You summarize meetings. Use these sections: Summary, Key decisions, Action items (owner - task - due date), Open questions, Risks. Only use information present in the notes.`,
-        prompt: [
-          `Summarize these meeting notes for: ${f("audience", "Whole team")}`,
-          ``,
-          f("notes"),
-        ].join("\n"),
+        system: `${BASE} Summarize these meeting notes into exactly 3 sections: SUMMARY (2-4 sentences), DECISIONS (bullets), ACTION ITEMS (bullets formatted as Task — Owner — Deadline). Never invent details not in the notes.`,
+        prompt: `Meeting notes:\n\n${f("notes")}`,
       };
     case "planner":
       return {
-        system: `${SYSTEM_BASE} You are a planning coach. Output: Objective, Milestones, Prioritised task list (with effort estimate and priority P1-P3), Suggested schedule, Watch-outs.`,
+        system: `${BASE} Prioritize these tasks by urgency and importance, then build a time-boxed schedule per day for the requested range. Never invent tasks. Flag anything that won't realistically fit.`,
         prompt: [
-          `Goal: ${f("goal")}`,
-          `Timeframe: ${f("deadline", "flexible")}`,
-          `Time available: ${f("capacity", "a few hours a week")}`,
+          `Plan range: ${f("range", "Day")}`,
+          `Working hours per day: ${f("hours", "6")}`,
+          `Tasks (one per line):`,
+          f("tasks"),
         ].join("\n"),
       };
     case "research":
       return {
-        system: `${SYSTEM_BASE} You produce research briefings from general knowledge only. You cannot browse the web, so never fabricate sources, statistics or quotes. End with a short "Verify before using" list.`,
-        prompt: [
-          `Topic: ${f("topic")}`,
-          `Depth: ${f("depth", "Balanced briefing")}`,
-          `Format: ${f("format", "Briefing note")}`,
-        ].join("\n"),
+        system: `${BASE} Respond in 3 sections: SUMMARY (3-5 sentences), KEY INSIGHTS (bullets), RECOMMENDATIONS (practical bullets for a small business). Add a 'Note:' reminder to verify details if the topic is time-sensitive.`,
+        prompt: `Topic or text:\n\n${f("topic")}`,
       };
   }
 }
 
-export const CHAT_SYSTEM_PROMPT = `${SYSTEM_BASE} You are the assistant behind an AI Workplace Productivity Assistant app. Help with emails, meetings, planning, prioritisation and workplace research. Ask a brief clarifying question when the request is ambiguous. Keep answers concise unless depth is requested.`;
+export const CHAT_SYSTEM_PROMPT = `You are Mainstreet, a friendly, practical workplace assistant for small business staff. Give concise plain-language answers. For legal/tax/medical questions, recommend confirming with a professional. Never invent facts, names, dates or numbers.`;
