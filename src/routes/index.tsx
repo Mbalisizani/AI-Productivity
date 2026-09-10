@@ -1,19 +1,52 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
-  BotMessageSquare,
-  ListChecks,
+  CalendarClock,
   Mail,
+  MessageCircleHeart,
   NotebookPen,
-  ShieldAlert,
-  Telescope,
+  Search,
 } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
+import { Disclaimer } from "@/components/Disclaimer";
 
-const TITLE = "AI Workplace Productivity Assistant";
+const TITLE = "Mainstreet — AI assistant for small businesses";
 const DESC =
-  "Automate workplace tasks with AI: draft emails, summarize meetings, plan work, research topics and chat with an assistant.";
+  "One workspace to draft emails, summarize meetings, plan your tasks, research topics and ask questions — with AI drafts you always review.";
+
+const CARDS = [
+  {
+    to: "/email",
+    title: "Email Generator",
+    text: "Turn a few notes into a ready-to-send email in the tone you choose.",
+    icon: Mail,
+  },
+  {
+    to: "/notes",
+    title: "Meeting Notes Summarizer",
+    text: "Paste messy notes and get a summary, decisions and action items.",
+    icon: NotebookPen,
+  },
+  {
+    to: "/planner",
+    title: "Task Planner",
+    text: "Prioritise your list and get a realistic, time-boxed schedule.",
+    icon: CalendarClock,
+  },
+  {
+    to: "/research",
+    title: "Research Assistant",
+    text: "Get a plain-language briefing with practical recommendations.",
+    icon: Search,
+  },
+  {
+    to: "/chat",
+    title: "Ask Mainstreet",
+    text: "Chat through any work question and keep the conversation history.",
+    icon: MessageCircleHeart,
+  },
+] as const;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,104 +62,44 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-const CARDS = [
-  {
-    to: "/email",
-    icon: Mail,
-    title: "Smart Email Generator",
-    text: "Professional drafts with the right tone, ready to edit and send.",
-  },
-  {
-    to: "/notes",
-    icon: NotebookPen,
-    title: "Meeting Notes Summarizer",
-    text: "Decisions, action items and open questions from raw notes.",
-  },
-  {
-    to: "/planner",
-    icon: ListChecks,
-    title: "AI Task Planner",
-    text: "Turn a goal into prioritised tasks and a realistic schedule.",
-  },
-  {
-    to: "/research",
-    icon: Telescope,
-    title: "AI Research Assistant",
-    text: "Structured briefings with clear flags for what to verify.",
-  },
-  {
-    to: "/chat",
-    icon: BotMessageSquare,
-    title: "AI Chatbot",
-    text: "Ask anything about your workday and iterate in conversation.",
-  },
-] as const;
-
 function Dashboard() {
   return (
-    <AppShell
-      title="Dashboard"
-      subtitle="Five AI workspaces to take the busywork out of your day."
-    >
-      <section className="overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-        <p className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-          Powered by Lovable AI
+    <AppShell title="Dashboard" subtitle="Your small business AI workspace">
+      <section className="rounded-2xl bg-secondary px-6 py-8 text-secondary-foreground sm:px-8 sm:py-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground/70">
+          Welcome back
         </p>
-        <h2 className="mt-4 max-w-xl text-2xl font-semibold tracking-tight sm:text-3xl">
-          Automate your workplace writing, planning and research
+        <h2 className="mt-3 font-display text-2xl leading-tight sm:text-3xl">
+          Let's get the admin off your plate.
         </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Structured prompts do the heavy lifting: you give the context, the assistant produces a
-          first draft, and every output stays fully editable so the final word is always yours.
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-secondary-foreground/80">
+          Pick a tool below and Mainstreet will write the first draft. You stay in control — every
+          result is editable, and nothing is ever sent for you.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            to="/email"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-          >
-            Draft an email <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            to="/chat"
-            className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium transition hover:bg-accent"
-          >
-            Open the chatbot
-          </Link>
-        </div>
       </section>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {CARDS.map(({ to, icon: Icon, title, text }) => (
+      <Disclaimer className="mt-6" />
+
+      <h3 className="mt-8 font-display text-lg">Your tools</h3>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {CARDS.map(({ to, title, text, icon: Icon }) => (
           <Link
             key={to}
             to={to}
-            className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/40 hover:shadow-md"
+            className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Icon className="h-5 w-5" />
-            </div>
-            <h3 className="mt-4 text-sm font-semibold">{title}</h3>
-            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{text}</p>
-            <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary">
+            </span>
+            <p className="mt-4 font-display text-base font-semibold">{title}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{text}</p>
+            <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
               Open
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </span>
           </Link>
         ))}
       </div>
-
-      <section className="mt-6 rounded-2xl border border-border bg-secondary/40 p-5">
-        <h3 className="flex items-center gap-2 text-sm font-semibold">
-          <ShieldAlert className="h-4 w-4 text-primary" />
-          Responsible AI use
-        </h3>
-        <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
-          <li>• AI can be confidently wrong — check facts, names, numbers and dates yourself.</li>
-          <li>• Never paste confidential, personal or regulated data you are not cleared to share.</li>
-          <li>• Use outputs as a first draft, not a final decision; a human stays accountable.</li>
-          <li>• The research assistant cannot browse the web and will flag what needs verifying.</li>
-        </ul>
-      </section>
     </AppShell>
   );
 }
